@@ -1,0 +1,19 @@
+FROM node:14.15-alpine AS runner
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN yarn install
+
+ENV TZ=Asia/Bangkok
+ENV NODE_ENV developement
+
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+USER nodejs
+
+EXPOSE 3000
+
+CMD yarn dev
