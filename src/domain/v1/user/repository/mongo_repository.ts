@@ -1,7 +1,10 @@
 import { injectable, inject } from "inversify";
 import "reflect-metadata";
 import { UserRepository } from "../types";
-import { ApdaterConnection } from "../../../../utils/database/types";
+import {
+  ApdaterConnection,
+  TYPES as ADAPTER_TYPES,
+} from "../../../../utils/database/types";
 import { User } from "../../../../models/user";
 import { CollectionUser } from "../../../../constants/collection";
 import mongoose, { Connection } from "mongoose";
@@ -11,7 +14,9 @@ import mongodb from "mongodb";
 export default class MongoUserRepository implements UserRepository {
   private client: ApdaterConnection;
 
-  constructor(@inject("ApdaterConnection") client: ApdaterConnection) {
+  constructor(
+    @inject(ADAPTER_TYPES.ApdaterConnection) client: ApdaterConnection
+  ) {
     this.client = client;
   }
 

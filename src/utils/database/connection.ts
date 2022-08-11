@@ -43,10 +43,10 @@ export default class MongoConnection implements ApdaterConnection {
     return await this.client
       .close()
       .then(() => {
-        console.log("close mongodb success");
+        console.info("close mongodb success");
       })
       .catch((err) => {
-        console.log("fail to close connection mongodb", err);
+        console.error("fail to close connection mongodb", err);
       });
   }
 }

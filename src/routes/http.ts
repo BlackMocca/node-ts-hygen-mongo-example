@@ -1,5 +1,5 @@
 import express from "express";
-import UserController from "../domain/v1/user/http/user_controller";
+import { UserHTTPHandler } from "../domain/v1/user/types";
 import bodyParser from "body-parser";
 
 const httpApp = express();
@@ -8,7 +8,7 @@ httpApp.use(bodyParser.json({ limit: "100mb" }));
 
 export const registerUserRoute = (
   app: express.Express,
-  handler: UserController
+  handler: UserHTTPHandler
 ): void => {
   // respond with "hello world" when a GET request is made to the homepage
   app.get("/v1/user", handler.getById);

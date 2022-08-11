@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import "reflect-metadata";
-import { UserUsecase } from "../types";
+import { UserUsecase, TYPES } from "../types";
 import { User } from "../../../../models/user";
 import { v4 as uuidv4 } from "uuid";
 import express, { response } from "express";
@@ -10,7 +10,7 @@ import { StatusCodes } from "http-status-codes";
 export default class UserController {
   private readonly userUs: UserUsecase;
 
-  public constructor(@inject("UserUsecase") userUs: UserUsecase) {
+  public constructor(@inject(TYPES.UserUsecase) userUs: UserUsecase) {
     this.userUs = userUs;
   }
 
@@ -18,14 +18,20 @@ export default class UserController {
     console.log(`is undefined? ${this.userUs}`);
   }
 
-  public getById(req: express.Request, res: express.Response) {
+  public async getById(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
     console.log(this.userUs);
     res.status(200).json({
       message: "foo",
     });
   }
 
-  public async save(req: express.Request, res: express.Response) {
+  public async save(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
     let { email, firstName, lastName } = req.body;
     let user: User = <User>{
       email: email,

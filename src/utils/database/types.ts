@@ -8,5 +8,5 @@ export interface ApdaterConnection {
 }
 
 export const TYPES = {
-  ApdaterConnection: Symbol.for("MongoConnection"),
+  ApdaterConnection: Symbol.for("ApdaterConnection"),
 };

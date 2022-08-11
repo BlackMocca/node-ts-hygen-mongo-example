@@ -9,17 +9,21 @@ import {
   TYPES as ADAPTER_TYPES,
 } from "./utils/database/types";
 import MongoConnection from "./utils/database/connection";
+import { env } from "./constants/config";
 
 export const container = new Container({
-  autoBindInjectable: true,
-  skipBaseClassChecks: true,
+  // autoBindInjectable: true,
+  // skipBaseClassChecks: true,
   defaultScope: "Singleton",
 });
 
 container
   .bind<ApdaterConnection>(ADAPTER_TYPES.ApdaterConnection)
-  .to(MongoConnection)
-  .inSingletonScope();
+  .toDynamicValue(async (context): Promise<ApdaterConnection> => {
+    let mongoAdapter = new MongoConnection(env.MONGODB_URI);
+    await mongoAdapter.connect();
+    return Promise.resolve(<ApdaterConnection>mongoAdapter);
+  });
 
 container
   .bind<UserRepository>(TYPES.UserRepository)
@@ -28,6 +32,6 @@ container
 
 container.bind<UserUsecase>(TYPES.UserUsecase).to(UserLogic).inSingletonScope();
 
-container.bind(TYPES.UserController).to(UserController).inSingletonScope();
+container.bind(TYPES.UserHTTPHandler).to(UserController).inSingletonScope();
 
 export default container;
