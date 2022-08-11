@@ -28,8 +28,8 @@ class AppConfig implements ServeAppConfig {
 let userRepo: UserRepository;
 let userUs: UserUsecase;
 let userController: UserController;
-userUs = container.get("UserUsecase");
-userUs.getById(1);
+// userUs = container.get("UserUsecase");
+// userUs.getById(1);
 
 var serveApp = async (config: ServeAppConfig): Promise<void> => {
   /* enabling router */
@@ -46,7 +46,7 @@ var serveApp = async (config: ServeAppConfig): Promise<void> => {
   // userController = <UserController>container.get("UserController");
 
   /* registerUserRoute */
-  registerUserRoute(httpApp, userController);
+  // registerUserRoute(httpApp, userController);
 
   httpApp.listen(env.PORT, () => {
     console.log(`server is running on http://127.0.0.1:${env.PORT}`);
