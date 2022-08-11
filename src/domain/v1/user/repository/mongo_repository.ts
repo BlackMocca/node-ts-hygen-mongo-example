@@ -5,10 +5,11 @@ import {
   ApdaterConnection,
   TYPES as ADAPTER_TYPES,
 } from "../../../../utils/database/types";
-import { User } from "../../../../models/user";
+import { User, MgoUser } from "../../../../models/user";
 import { CollectionUser } from "../../../../constants/collection";
 import mongoose, { Connection } from "mongoose";
 import mongodb from "mongodb";
+import MUUID from "uuid-mongodb";
 
 @injectable()
 export default class MongoUserRepository implements UserRepository {
@@ -33,16 +34,21 @@ export default class MongoUserRepository implements UserRepository {
   public async save(user: User): Promise<Error | undefined> {
     let con: mongoose.Connection = this.client.getClient();
     let col = con.collection(CollectionUser);
+    let mgoUser = new MgoUser({
+      id: MUUID.from(user.id),
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
 
     let query = {
-      id: user.id,
+      id: mgoUser.id,
     };
     return await col
-      .updateOne(query, user, {
+      .updateOne(query, mgoUser, {
         upsert: true,
       })
       .then((result: mongodb.UpdateResult) => {
-        console.log(result);
         if (result.upsertedCount > 0) {
           return undefined;
         }

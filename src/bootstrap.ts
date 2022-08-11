@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { Container } from "inversify";
 import MongoUserRepository from "./domain/v1/user/repository/mongo_repository";
 import UserLogic from "./domain/v1/user/usecase/user_ucase";
-import UserController from "./domain/v1/user/http/user_controller";
+import "./domain/v1/user/http/user_controller";
 import { UserRepository, TYPES, UserUsecase } from "./domain/v1/user/types";
 import {
   ApdaterConnection,
@@ -10,8 +10,9 @@ import {
 } from "./utils/database/types";
 import MongoConnection from "./utils/database/connection";
 import { env } from "./constants/config";
+import { interfaces, TYPE as ExpressTYPE } from "inversify-express-utils";
 
-export const container = new Container({
+let container = new Container({
   // autoBindInjectable: true,
   // skipBaseClassChecks: true,
   defaultScope: "Singleton",
@@ -19,10 +20,13 @@ export const container = new Container({
 
 container
   .bind<ApdaterConnection>(ADAPTER_TYPES.ApdaterConnection)
-  .toDynamicValue(async (context): Promise<ApdaterConnection> => {
+  // .toConstantValue(new MongoConnection(env.MONGODB_URI));
+  .toDynamicValue((context): ApdaterConnection => {
     let mongoAdapter = new MongoConnection(env.MONGODB_URI);
-    await mongoAdapter.connect();
-    return Promise.resolve(<ApdaterConnection>mongoAdapter);
+    (async () => {
+      await mongoAdapter.connect();
+    })();
+    return <ApdaterConnection>mongoAdapter;
   });
 
 container
@@ -32,6 +36,9 @@ container
 
 container.bind<UserUsecase>(TYPES.UserUsecase).to(UserLogic).inSingletonScope();
 
-container.bind(TYPES.UserHTTPHandler).to(UserController).inSingletonScope();
+// container
+//   .bind<interfaces.Controller>(ExpressTYPE.Controller)
+//   .to(UserController)
+//   .whenTargetNamed("UserController");
 
-export default container;
+export { container };

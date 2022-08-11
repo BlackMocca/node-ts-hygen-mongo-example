@@ -1,25 +1,21 @@
 import "reflect-metadata";
-import container from "./bootstrap";
+import { container } from "./bootstrap";
 
-import express from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
 import { env } from "./constants/config";
 import MongoConnection from "./utils/database/connection";
 import MongoUserRepository from "./domain/v1/user/repository/mongo_repository";
-import {
-  UserRepository,
-  TYPES,
-  UserUsecase,
-  UserHTTPHandler,
-} from "./domain/v1/user/types";
+import { UserRepository, TYPES, UserUsecase } from "./domain/v1/user/types";
 import UserLogic from "./domain/v1/user/usecase/user_ucase";
-import UserController from "./domain/v1/user/http/user_controller";
+import { UserController } from "./domain/v1/user/http/user_controller";
 import mongoose from "mongoose";
+import { InversifyExpressServer } from "inversify-express-utils";
 import {
   ApdaterConnection,
   TYPES as ADAPTER_TYPES,
 } from "./utils/database/types";
-import httpApp, { registerUserRoute } from "./routes/http";
+import { settingGlobalMiddleware } from "./routes/http";
 
 interface ServeAppConfig {
   mongoClient: ApdaterConnection;
@@ -35,34 +31,34 @@ class AppConfig implements ServeAppConfig {
 
 let userRepo: UserRepository;
 let userUs: UserUsecase;
-let userController: UserHTTPHandler;
-
-var serveApp = async (): Promise<void> => {};
 
 var bootstrapApp = async () => {
-  try {
-    /* enabling router */
-    /* inject user Repo */
-    userRepo = await container.getAsync<UserRepository>(TYPES.UserRepository);
+  /* enabling router */
+  /* inject user Repo */
+  // userRepo = await container.getAsync<UserRepository>(TYPES.UserRepository);
 
-    /* inject usecase */
-    // userUs = <UserUsecase>new UserLogic(userRepo);
-    userUs = container.get<UserUsecase>(TYPES.UserUsecase);
+  /* inject usecase */
+  // userUs = container.get<UserUsecase>(TYPES.UserUsecase);
 
-    /* enable handler */
-    userController = container.get<UserHTTPHandler>(TYPES.UserHTTPHandler);
+  /* enable handler */
+  // userController = container.get<UserHTTPHandler>(TYPES.UserHTTPHandler);
+  /* registerUserRoute */
+  // registerUserRoute(app, userController);
 
-    /* registerUserRoute */
-    registerUserRoute(httpApp, userController);
+  // let server = httpApp.listen(env.PORT, () => {
+  // console.log(`server is running on http://127.0.0.1:${env.PORT}`);
+  // });
+  // build the server instance
 
-    httpApp.listen(env.PORT, () => {
-      console.log(`server is running on http://127.0.0.1:${env.PORT}`);
-    });
+  const server = new InversifyExpressServer(container);
+  server.setConfig(async (app: express.Application) => {
+    settingGlobalMiddleware(app);
+  });
 
-    await serveApp();
-  } catch (err) {
-    console.log(err);
-  }
+  const instance = server.build();
+  console.info(`server is running on http://127.0.0.1:${env.PORT}`);
+  instance.listen(env.PORT);
+  // log to the console to indicate the server has been started
 };
 
 bootstrapApp();

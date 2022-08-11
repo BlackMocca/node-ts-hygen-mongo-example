@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import uuid, { v4 as uuidv4 } from "uuid";
-import { UUID } from "./types";
+import MUUID from "uuid-mongodb";
 
 export interface User extends Document {
   id: string;
@@ -9,28 +8,32 @@ export interface User extends Document {
   lastName: String;
 }
 
-const userSchema: Schema = new Schema({
-  id: {
-    type: UUID,
-    required: true,
-    default: uuidv4(),
+const userSchema: Schema = new Schema(
+  {
+    id: {
+      type: "object",
+      value: { type: "Buffer" },
+      required: true,
+      default: MUUID.v4(),
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-});
-
-userSchema.set("toObject", { getters: true });
-userSchema.set("toJSON", { getters: true });
+  {
+    id: false,
+    _id: false,
+  }
+);
 
 export const MgoUser = mongoose.model<User>("User", userSchema);
