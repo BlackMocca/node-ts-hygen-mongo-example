@@ -6,6 +6,8 @@ COPY package.json ./
 
 RUN yarn install
 
+COPY . .
+
 ENV TZ=Asia/Bangkok
 ENV NODE_ENV developement
 
